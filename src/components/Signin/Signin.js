@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import jwtDecode from 'jwt-decode';
-class Signin extends Component {
 
+class Signin extends Component {
   constructor(props){
     super(props);
     this.state = {
@@ -35,7 +35,6 @@ class Signin extends Component {
           if (user.token){
             localStorage.setItem('token', user.token);
             this.props.loadUser(user);
-            console.log('data fetch completed');
             localStorage.setItem('user',JSON.stringify(jwtDecode(user.token)));
             this.props.onRouteChange('home');
           }

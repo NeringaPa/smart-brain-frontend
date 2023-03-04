@@ -5,7 +5,7 @@ import Register from './components/Register/Register';
 import Logo from './components/Logo/Logo';
 import Rank from './components/Rank/Rank';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
-import FaceRecognition from './components/FaceRecognition/FaceRecognition';
+//import FaceRecognition from './components/FaceRecognition/FaceRecognition';
 import './App.css';
 
 const initialState = {
@@ -13,7 +13,7 @@ const initialState = {
   imageUrl: '',
   route: 'signin',
   isSignedIn: false,
-  box: {},
+  predictions:'',
   user:{
     id: '',
     name: '',
@@ -29,21 +29,30 @@ class App extends Component {
     this.state = initialState;
   }
 
-  calculateBoxLocation = (data) => {
-    const clarifaiBox = data.outputs[0];//data.outputs[0].data.regions[0].region_info.bounding_box;
-    const image = document.getElementById('inputimage');
-    const width = Number(image.width);
-    const height = Number(image.height);
-    return{
-      leftCol: clarifaiBox.left_col * width,
-      topRow: clarifaiBox.top_row * height,
-      rightCol: width - (clarifaiBox.righ_col * width),
-      bottomRow: height - (clarifaiBox.bottom_row * height)
+  // calculateBoxLocation = (data) => {
+  //   console.log('trying to calculate box location');
+  //   const clarifaiBox = data.outputs[0].data.regions[0];//.region_info.bounding_box;
+  //   const image = document.getElementById('inputimage');
+  //   const width = Number(image.width);
+  //   const height = Number(image.height);
+  //   return{
+  //     leftCol: clarifaiBox.left_col * width,
+  //     topRow: clarifaiBox.top_row * height,
+  //     rightCol: width - (clarifaiBox.righ_col * width),
+  //     bottomRow: height - (clarifaiBox.bottom_row * height)
+  //   }
+  // }
+
+  handleApiPredictions = (data) => {
+    console.log('starting to handle API predictions')
+    const output = data.outputs[0];  
+    for (const concept of output.data.concepts) {
+      return (concept.name + " " + Math.round(concept.value*100) + "%");
     }
   }
 
-  displayFaceBox = (box) =>{
-    this.setState({box:box});
+  displayPredictions = (predictions) =>{
+    this.setState({predictions:predictions});
   }
 
   loadUser = (data) => {
@@ -69,8 +78,7 @@ class App extends Component {
     this.setState({route:route});
   }
 
-  onButtonSumbit = () => {
-    console.log('click');
+  onButtonSubmit = (event) => {
     const { input, user } = this.state;
     this.setState({imageUrl:input});
     fetch('http://localhost:3000/imageurl', {
@@ -97,13 +105,14 @@ class App extends Component {
         })
         .catch(err => console.log(err))
       }
-        this.displayFaceBox(this.calculateBoxLocation(response))
+        //this.displayFaceBox(this.calculateBoxLocation(response))
+        this.displayPredictions(this.handleApiPredictions(response))
       })
       .catch(err => console.log(err));
   }
 
 render(){
-  const { isSignedIn, route, box, imageUrl} = this.state;
+  const { isSignedIn, route, predictions, imageUrl} = this.state;//box
   return(
     <div className="App">
       <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange}/>
@@ -113,9 +122,10 @@ render(){
           <Rank name={this.state.user.name} entries={this.state.user.entries}/>
           <ImageLinkForm 
             onInputChange={this.onInputChange} 
-            onButtonSumbit={this.onButtonSumbit}
+            onButtonSubmit={this.onButtonSubmit}
+            predictions={predictions}
+            imageUrl={imageUrl}
           />
-          <FaceRecognition box={box} imageUrl={imageUrl}/>
         </div>
       : (
           route === 'signin' || route === 'signout'

@@ -3,6 +3,7 @@ body {
   font-family: 'Roboto Mono', monospace;
   background: rgb(2,0,36);
   background: linear-gradient(125deg, rgba(2,0,36,1) 0%, rgba(9,121,93,1) 35%, rgba(0,212,255,1) 100%);
+  min-height: 1100px;
 }
 
 button{

@@ -41,7 +41,6 @@ class Register extends Component {
       .then(user =>{
         if (user.id){
           this.props.loadUser(user);
-          console.log('user fetch completed');
           this.props.onRouteChange('signin');
         }
       })
